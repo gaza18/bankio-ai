@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bankio.AI - Financial Insights Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bankio: {
+                            bg: '#f8fafc',
+                            sidebar: '#ffffff',
+                            card: '#ffffff',
+                            border: '#e2e8f0',
+                            primary: '#064e3b', // Deep Emerald Green
+                            primaryHover: '#04392b',
+                            accent: '#059669',
+                            darkCard: '#064e3b',
+                            textDark: '#0f172a',
+                            textMuted: '#64748b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Bankio.AI">
+    <meta name="theme-color" content="#064e3b">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/10143/10143224.png">
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            color: #0f172a;
+        }
+        .bankio-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased flex flex-col md:flex-row custom-scrollbar">
+
+    <!-- Sidebar Left Navigation -->
+    <aside id="sidebar" class="w-full md:w-64 bg-white border-r border-slate-200 p-5 flex flex-col justify-between shrink-0 md:min-h-screen z-30">
+        <div class="space-y-6">
+            <!-- Brand Logo -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-900 flex items-center justify-center text-white text-lg font-black shadow-md shadow-emerald-900/20">
+                        <i class="fa-solid fa-wallet text-emerald-400"></i>
+                    </div>
+                    <div>
+                        <span class="text-lg font-bold tracking-tight text-slate-900 block leading-tight">Bankio<span class="text-emerald-700">.AI</span></span>
+                        <span class="text-[10px] text-slate-400 font-medium">Keuangan Personal</span>
+                    </div>
+                </div>
+                <!-- Mobile Menu Toggle Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-500 hover:text-slate-800 p-1.5">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Main Menu Navigation -->
+            <nav id="navLinks" class="space-y-6 hidden md:block">
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 px-2">MAIN MENU</div>
+                    <ul class="space-y-1">
+                        <li>
+                            <button onclick="switchPage('scanner')" id="nav-scanner" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-900 text-white font-medium text-xs transition shadow-sm text-left">
+                                <i class="fa-solid fa-wand-magic-sparkles text-sm w-4 text-center text-emerald-400"></i>
+                                <span>Scan Struk & Input</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="switchPage('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-medium text-xs transition text-left">
+                                <i class="fa-solid fa-border-all text-sm w-4 text-center"></i>
+                                <span>Dashboard</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="switchPage('analytics')" id="nav-analytics" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-medium text-xs transition text-left">
+                                <i class="fa-solid fa-chart-line text-sm w-4 text-center"></i>
+                                <span>Analytics</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="switchPage('transactions')" id="nav-transactions" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-medium text-xs transition text-left">
+                                <i class="fa-solid fa-receipt text-sm w-4 text-center"></i>
+                                <span>Transactions</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 px-2">OTHERS</div>
+                    <ul class="space-y-1">
+                        <li>
+                            <button onclick="openModal('profileModal')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-medium text-xs transition text-left">
+                                <i class="fa-solid fa-user-gear text-sm w-4 text-center text-emerald-700"></i>
+                                <span>Edit Profil</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="openModal('settingsModal')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-medium text-xs transition text-left">
+                                <i class="fa-solid fa-key text-sm w-4 text-center text-amber-600"></i>
+                                <span>Pengaturan API & Sheets</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="exportToCSV()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-medium text-xs transition text-left">
+                                <i class="fa-solid fa-file-csv text-sm w-4 text-center text-emerald-600"></i>
+                                <span>Export CSV</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="handleLogout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-600 hover:bg-rose-50 font-medium text-xs transition text-left mt-2">
+                                <i class="fa-solid fa-right-from-bracket text-sm w-4 text-center"></i>
+                                <span>Keluar Akun</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <!-- User Profile Footer -->
+        <div onclick="openModal('profileModal')" class="hidden md:flex items-center gap-3 pt-4 border-t border-slate-100 cursor-pointer hover:bg-slate-50 p-2 rounded-xl transition">
+            <div id="sidebarAvatar" class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-900 font-bold flex items-center justify-center text-xs border border-emerald-200 shrink-0">
+                AS
+            </div>
+            <div class="truncate flex-1">
+                <div id="sidebarUserName" class="text-xs font-bold text-slate-800 truncate">Aubrey Sabina</div>
+                <div id="sidebarUserRole" class="text-[10px] text-slate-400 truncate">aubrey@bankio.ai</div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 overflow-x-hidden pb-24 md:pb-8">
+        
+        <!-- Top Header & Search Bar -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                    Welcome, <span id="headerGreetingName" class="text-emerald-900">Aubrey Sabina</span>!
+                </h1>
+                <p id="pageSubHeading" class="text-xs text-slate-500 mt-0.5">Scan struk belanjaan & catat transaksi pengeluaran baru</p>
+            </div>
+
+            <!-- Header Action Controls -->
+            <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                <!-- Search Bar -->
+                <div class="relative w-full sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchInput" oninput="handleSearchInput()" placeholder="Cari nama, jenis/kategori, tanggal..." 
+                           class="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-700 shadow-sm transition">
+                </div>
+
+                <!-- Top Buttons -->
+                <div class="flex items-center gap-2">
+                    <button onclick="installPWA()" id="headerInstallBtn" title="Install Aplikasi ke HP" class="px-3 py-1.5 rounded-xl bg-emerald-900 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-900/20 hover:bg-emerald-800 transition">
+                        <i class="fa-solid fa-mobile-screen-button text-emerald-300"></i>
+                        <span class="hidden sm:inline">Install App</span>
+                    </button>
+                    <button onclick="openModal('settingsModal')" title="Pengaturan API & Sheets" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition shadow-sm text-xs">
+                        <i class="fa-solid fa-gear text-emerald-700"></i>
+                    </button>
+                    <button onclick="openBudgetModal()" title="Atur Anggaran" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition shadow-sm text-xs">
+                        <i class="fa-solid fa-sliders"></i>
+                    </button>
+                    <button onclick="openModal('profileModal')" title="Profil Pengguna" class="w-8 h-8 rounded-full bg-emerald-900 text-white flex items-center justify-center font-bold text-xs shadow-md shadow-emerald-900/10 hover:bg-emerald-800 transition overflow-hidden">
+                        <div id="headerAvatar" class="w-full h-full flex items-center justify-center">AS</div>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- API Key Status Alert Banner -->
+        <div id="apiKeyNoticeBanner" class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-amber-900">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation text-amber-600 text-base shrink-0"></i>
+                <span><strong>API Key Gemini AI Belum Diatur!</strong> Masukkan API Key agar fitur Scan Struk & Analisis AI dapat berjalan.</span>
+            </div>
+            <button onclick="openModal('settingsModal')" class="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition shrink-0">
+                Atur API Key
+            </button>
+        </div>
+
+        <!-- ================= PAGE 1: SCAN STRUK & TAMBAH TRANSAKSI (DEFAULT PAGE) ================= -->
+        <div id="page-scanner" class="page-view space-y-6 pb-4 md:pb-0">
+            <section class="bankio-card p-4 sm:p-5 border-l-4 border-l-emerald-800 shadow-sm">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-plus font-bold"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Tambah Transaksi & Scan Struk AI</h3>
+                            <p class="text-[11px] text-slate-400">Catat transaksi manual atau gunakan kamera scan struk otomatis</p>
+                        </div>
+                    </div>
+                    <span id="receiptScanningStatus" class="hidden text-xs text-emerald-700 font-semibold animate-pulse flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Membaca Struk dengan Gemini AI...
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                    <!-- AI Struk Scanner Dropzone Box -->
+                    <div class="lg:col-span-5 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 text-emerald-900 font-bold text-xs">
+                                <i class="fa-solid fa-wand-magic-sparkles text-emerald-700 text-sm"></i> AI Struk Scanner
+                            </div>
+                            <span class="text-[9px] bg-emerald-800 text-white font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Auto-Fill Form</span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            Unggah foto nota atau struk belanjaan Anda. Gemini AI akan otomatis membaca nama toko, jumlah nominal, kategori, dan tanggal secara presisi.
+                        </p>
+                        
+                        <div class="border-2 border-dashed border-emerald-300 rounded-xl p-4 text-center bg-white/60 space-y-2 hover:bg-white transition cursor-pointer" onclick="document.getElementById('receiptFileInput').click()">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-emerald-700"></i>
+                            <div class="text-xs font-semibold text-slate-800">Klik di sini untuk upload foto struk</div>
+                            <div class="text-[10px] text-slate-400">Mendukung format JPG, PNG, WEBP</div>
+                        </div>
+
+                        <input type="file" id="receiptFileInput" accept="image/*" class="hidden" onchange="handleReceiptUpload(event)">
+                        <button type="button" onclick="document.getElementById('receiptFileInput').click()" class="w-full py-2.5 bg-emerald-900 hover:bg-emerald-800 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-md">
+                            <i class="fa-solid fa-camera"></i> Ambil Foto / Upload Struk
+                        </button>
+                    </div>
+
+                    <!-- Input Form Grid -->
+                    <form id="addTransactionForm" onsubmit="handleFormSubmit(event)" class="lg:col-span-7 bg-white p-4 rounded-2xl border border-slate-200 space-y-3">
+                        <h4 class="font-bold text-xs text-slate-800 uppercase tracking-wider mb-2 pb-2 border-b border-slate-100 flex items-center gap-1.5">
+                            <i class="fa-solid fa-pen-to-square text-emerald-700"></i> Detail Transaksi
+                        </h4>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Nama Item / Toko</label>
+                                <input type="text" id="txName" placeholder="Contoh: Supermarket, Kopi" required
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-700 focus:bg-white transition">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Jumlah (Rp)</label>
+                                <input type="number" id="txAmount" placeholder="25000" min="1" required
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-700 focus:bg-white transition">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Kategori</label>
+                                <select id="txCategory" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-700 focus:bg-white transition">
+                                    <option value="Makanan">Makanan</option>
+                                    <option value="Belanja">Belanja</option>
+                                    <option value="Transportasi">Transportasi</option>
+                                    <option value="Tagihan">Tagihan</option>
+                                    <option value="Hiburan">Hiburan</option>
+                                    <option value="Kesehatan">Kesehatan</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Tanggal</label>
+                                <input type="date" id="txDate" required
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-700 focus:bg-white transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Catatan Opsional</label>
+                            <input type="text" id="txNote" placeholder="Catatan kecil..." 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-700 focus:bg-white transition">
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="w-full py-2.5 bg-emerald-900 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl transition shadow-md shadow-emerald-900/10 flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-plus text-xs"></i> Simpan Transaksi Baru
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Mini Summary Card: Total Income & Sisa Saldo -->
+            <div class="bankio-card p-4 sm:p-5 bg-slate-900 text-white rounded-2xl shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg shrink-0 border border-emerald-500/30">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-emerald-400">Ringkasan Saldo Terkini</h4>
+                        <p class="text-[11px] text-slate-300">Status total income dan sisa anggaran setelah dipotong seluruh pengeluaran tercatat.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:gap-6 w-full lg:w-auto justify-between lg:justify-end pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-800">
+                    <div class="text-left sm:text-right">
+                        <span class="text-[10px] text-slate-400 font-medium uppercase block truncate">Total Income</span>
+                        <span id="scannerTotalIncome" class="text-xs sm:text-base font-bold text-white block truncate">Rp 0</span>
+                    </div>
+                    <div class="h-8 w-px bg-slate-800 hidden sm:block"></div>
+                    <div class="text-left sm:text-right">
+                        <span class="text-[10px] text-slate-400 font-medium uppercase block truncate">Expenses</span>
+                        <span id="scannerTotalExpenses" class="text-xs sm:text-base font-bold text-rose-400 block truncate">Rp 0</span>
+                    </div>
+                    <div class="h-8 w-px bg-slate-800 hidden sm:block"></div>
+                    <div class="text-right">
+                        <span class="text-[10px] text-slate-400 font-medium uppercase block truncate">Sisa Anggaran</span>
+                        <span id="scannerRemainingBudget" class="text-sm sm:text-lg font-black text-emerald-400 block truncate">Rp 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 2: DASHBOARD OVERVIEW ================= -->
+        <div id="page-dashboard" class="page-view space-y-6 hidden">
+            <!-- Page Section Title -->
+            <div class="flex items-center justify-between pt-1">
+                <h2 class="text-lg font-bold text-slate-900">Financial Insights Dashboard</h2>
+                <div class="text-xs text-slate-500 font-medium bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm flex items-center gap-2">
+                    <i class="fa-regular fa-calendar text-emerald-700"></i>
+                    <span id="headerDateDisplay">Juli 2026</span>
+                </div>
+            </div>
+
+            <!-- Top Key Stat Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div onclick="openBudgetModal()" class="bankio-card p-5 flex flex-col justify-between space-y-3 relative cursor-pointer hover:border-emerald-600 transition group" title="Klik untuk ubah Total Income">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                                Total Income <i class="fa-solid fa-pen text-[10px] text-slate-400 group-hover:text-emerald-700 transition"></i>
+                            </span>
+                            <div id="cardTotalIncome" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Rp 0</div>
+                        </div>
+                        <span class="bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-up text-[8px]"></i> Active
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        Klik kartu untuk atur Income
+                    </div>
+                </div>
+
+                <div class="bankio-card p-5 flex flex-col justify-between space-y-3 relative">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 block">Total Expenses</span>
+                            <div id="cardTotalAmount" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Rp 0</div>
+                        </div>
+                        <span id="expensesBadge" class="bg-rose-50 text-rose-700 border border-rose-200/60 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-down text-[8px]"></i> Total
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span id="cardItemCount">0</span> transaksi tercatat
+                    </div>
+                </div>
+
+                <div id="savingsCardContainer" class="bg-emerald-900 text-white rounded-2xl p-5 shadow-lg shadow-emerald-900/15 flex flex-col justify-between relative overflow-hidden transition-colors duration-300">
+                    <div class="flex justify-between items-start z-10">
+                        <div>
+                            <span class="text-xs font-medium text-emerald-200 uppercase tracking-wider block" id="savingsCardTitle">Available Savings</span>
+                            <div id="bigBudgetRemainingText" class="text-2xl sm:text-3xl font-black text-white mt-1">Rp 0</div>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-emerald-200" id="savingsIconBox">
+                            <i class="fa-solid fa-piggy-bank text-sm"></i>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-3 z-10">
+                        <div class="w-full bg-black/20 h-2 rounded-full overflow-hidden">
+                            <div id="budgetProgressBar" class="bg-emerald-400 h-full w-0 transition-all duration-500"></div>
+                        </div>
+                        <p id="budgetPercentText" class="text-[11px] text-emerald-200/90 font-medium leading-tight">
+                            0% terpakai dari total anggaran
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Financial Advisor Banner -->
+            <section class="bankio-card p-4 bg-emerald-50/40 border-emerald-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-900 text-emerald-300 flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fa-solid fa-brain text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                            AI Financial Advisor
+                        </h4>
+                        <div id="aiAdvisorBox" class="text-xs text-slate-600 mt-0.5 italic">
+                            Klik 'Analisis' untuk memuat saran finansial dari Gemini AI...
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="fetchAiTips()" class="px-3.5 py-1.5 bg-emerald-900 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold transition shrink-0 flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-rotate-right text-xs"></i> Analisis AI
+                </button>
+            </section>
+        </div>
+
+        <!-- ================= PAGE 3: ANALYTICS ================= -->
+        <div id="page-analytics" class="page-view space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Analisis Grafik Keuangan</h2>
+                    <span class="text-xs text-slate-500">Laporan Visual Real-time</span>
+                </div>
+                <!-- Analytics Summary Pill Badge -->
+                <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-200 text-xs shadow-sm">
+                    <div><span class="text-slate-400 text-[10px] uppercase font-bold block">Income</span> <span id="analyticsSummaryIncome" class="font-bold text-slate-800">Rp 0</span></div>
+                    <div class="w-px h-6 bg-slate-200"></div>
+                    <div><span class="text-slate-400 text-[10px] uppercase font-bold block">Expenses</span> <span id="analyticsSummaryExpenses" class="font-bold text-rose-600">Rp 0</span></div>
+                    <div class="w-px h-6 bg-slate-200"></div>
+                    <div><span class="text-slate-400 text-[10px] uppercase font-bold block">Savings</span> <span id="analyticsSummarySavings" class="font-bold text-emerald-600">Rp 0</span></div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Chart: Expenditure Category Donut Chart -->
+                <div class="lg:col-span-5 bankio-card p-5 space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-emerald-700"></i> Expenditure Category
+                        </h3>
+                        <span id="categoryCountBadge" class="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">0 Jenis</span>
+                    </div>
+
+                    <div class="relative h-48 flex justify-center items-center">
+                        <canvas id="expenseDonutChart"></canvas>
+                    </div>
+
+                    <div id="categoryBreakdownList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+                        <!-- Dynamic Category Legend -->
+                    </div>
+                </div>
+
+                <!-- Right Chart: Monthly Financial Bar Chart -->
+                <div class="lg:col-span-7 bankio-card p-5 space-y-4 flex flex-col justify-between">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-emerald-700"></i> Monthly Financial
+                            </h3>
+                            <p class="text-[11px] text-slate-400">Grafik perbandingan pengeluaran mingguan</p>
+                        </div>
+                        <select class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg px-2.5 py-1 focus:outline-none focus:border-emerald-700">
+                            <option>Bulan Ini</option>
+                            <option>Bulan Lalu</option>
+                        </select>
+                    </div>
+
+                    <div class="relative h-60">
+                        <canvas id="monthlyBarChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE 4: TRANSACTIONS TABLE ================= -->
+        <div id="page-transactions" class="page-view space-y-6 hidden pb-16 md:pb-0">
+            <!-- Transaction Table Section -->
+            <section class="bankio-card p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-list-check font-bold"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Riwayat Transaksi Lengkap</h3>
+                            <p class="text-[11px] text-slate-400">Daftar lengkap transaksi pengeluaran tercatat</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <select id="categoryFilter" onchange="renderApp()" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-emerald-700">
+                            <option value="ALL">Semua Kategori</option>
+                            <option value="Makanan">Makanan</option>
+                            <option value="Belanja">Belanja</option>
+                            <option value="Transportasi">Transportasi</option>
+                            <option value="Tagihan">Tagihan</option>
+                            <option value="Hiburan">Hiburan</option>
+                            <option value="Kesehatan">Kesehatan</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs">
+                        <thead class="text-[10px] text-slate-400 uppercase tracking-wider border-b border-slate-200 bg-slate-50/80 sticky top-0">
+                            <tr>
+                                <th class="p-3">Tanggal</th>
+                                <th class="p-3">Merchant / Item</th>
+                                <th class="p-3">Kategori</th>
+                                <th class="p-3 text-right">Jumlah</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionTableBody" class="divide-y divide-slate-100">
+                            <!-- Dynamic Transaction Rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-[11px] text-slate-400 text-right pt-2 border-t border-slate-100">
+                    Menampilkan <span id="filteredCount" class="font-bold text-slate-700">0</span> transaksi
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar (Native Mobile App Experience) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-40 px-2 py-1.5 flex justify-around items-center text-[10px] shadow-lg">
+        <button onclick="switchPage('scanner')" id="mob-nav-scanner" class="flex flex-col items-center py-1 px-2.5 text-emerald-900 font-bold transition">
+            <i class="fa-solid fa-wand-magic-sparkles text-base mb-0.5"></i>
+            <span>Scan</span>
+        </button>
+        <button onclick="switchPage('dashboard')" id="mob-nav-dashboard" class="flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-700 transition">
+            <i class="fa-solid fa-border-all text-base mb-0.5"></i>
+            <span>Dashboard</span>
+        </button>
+        <button onclick="switchPage('analytics')" id="mob-nav-analytics" class="flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-700 transition">
+            <i class="fa-solid fa-chart-line text-base mb-0.5"></i>
+            <span>Analisis</span>
+        </button>
+        <button onclick="switchPage('transactions')" id="mob-nav-transactions" class="flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-700 transition">
+            <i class="fa-solid fa-receipt text-base mb-0.5"></i>
+            <span>Riwayat</span>
+        </button>
+        <button onclick="installPWA()" id="mob-nav-install" class="flex flex-col items-center py-1 px-2.5 text-emerald-700 font-semibold transition">
+            <i class="fa-solid fa-download text-base mb-0.5 animate-bounce"></i>
+            <span>Install</span>
+        </button>
+    </nav>
+
+    <!-- Modal Login & Daftar (Auth Modal) -->
+    <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bankio-card max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <!-- Header Logo & Tabs -->
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-900 text-white flex items-center justify-center text-xl font-black mx-auto shadow-lg shadow-emerald-900/20">
+                    <i class="fa-solid fa-wallet text-emerald-400"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Selamat Datang di Bankio.AI</h3>
+                <p class="text-xs text-slate-500">Masuk atau buat akun baru untuk mengatur keuangan Anda</p>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="flex bg-slate-100 p-1 rounded-xl">
+                <button type="button" id="tabBtnLogin" onclick="switchAuthTab('login')" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-emerald-900 shadow-sm transition">
+                    Masuk
+                </button>
+                <button type="button" id="tabBtnRegister" onclick="switchAuthTab('register')" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition">
+                    Daftar Akun Baru
+                </button>
+            </div>
+
+            <!-- Form Login -->
+            <form id="loginForm" onsubmit="handleAuthSubmit(event, 'login')" class="space-y-3">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Email</label>
+                    <input type="email" id="loginEmail" placeholder="nama@email.com" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-emerald-900 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition">
+                    Masuk ke Dashboard
+                </button>
+            </form>
+
+            <!-- Form Register -->
+            <form id="registerForm" onsubmit="handleAuthSubmit(event, 'register')" class="space-y-3 hidden">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Nama Lengkap</label>
+                    <input type="text" id="regName" placeholder="Contoh: Aubrey Sabina / Budi Santoso" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Email</label>
+                    <input type="email" id="regEmail" placeholder="nama@email.com" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Password</label>
+                    <input type="password" id="regPassword" placeholder="Buat kata sandi baru" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-emerald-900 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition">
+                    Daftar Akun Sekarang
+                </button>
+            </form>
+
+            <!-- Demo Quick Access -->
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                <button type="button" onclick="closeModal('authModal')" class="text-xs text-slate-400 hover:text-slate-600 font-medium">
+                    Lanjutkan sebagai Tamu
+                </button>
+                <button type="button" onclick="closeModal('authModal')" class="text-xs text-emerald-800 font-bold hover:underline">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Profil -->
+    <div id="profileModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bankio-card max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear text-emerald-700"></i> Pengaturan Profil Pengguna
+                </h3>
+                <button onclick="closeModal('profileModal')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <form onsubmit="saveProfileChanges(event)" class="space-y-3">
+                <div class="flex items-center gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div class="relative group cursor-pointer shrink-0" onclick="document.getElementById('avatarFileInput').click()">
+                        <div id="editModalAvatar" class="w-14 h-14 rounded-full bg-emerald-900 text-white font-bold flex items-center justify-center text-sm shadow-md overflow-hidden border-2 border-white">
+                            AS
+                        </div>
+                        <div class="absolute inset-0 bg-slate-900/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-white text-xs">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 space-y-1">
+                        <div class="text-xs font-bold text-slate-800">Foto Profil</div>
+                        <p class="text-[10px] text-slate-400">Pilih foto format JPG, PNG, atau WEBP</p>
+                        <div class="flex gap-2 pt-1">
+                            <button type="button" onclick="document.getElementById('avatarFileInput').click()" class="text-[10px] bg-emerald-900 text-white px-2.5 py-1 rounded-lg font-semibold hover:bg-emerald-800 transition">
+                                <i class="fa-solid fa-upload text-[9px] mr-1"></i> Upload Foto
+                            </button>
+                            <button type="button" onclick="removeProfilePhoto()" class="text-[10px] bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-300 transition">
+                                Reset
+                            </button>
+                        </div>
+                        <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Nama Lengkap Pengguna</label>
+                    <input type="text" id="editUserName" placeholder="Masukkan nama Anda" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Email Akun</label>
+                    <input type="email" id="editUserEmail" placeholder="email@domain.com" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+                </div>
+
+                <div class="flex gap-2 justify-end pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('profileModal')" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-1.5 bg-emerald-900 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold shadow-sm">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal (Gemini API & Google Sheets Setup) -->
+    <div id="settingsModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bankio-card max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-emerald-700"></i> Pengaturan Integrasi API
+                </h3>
+                <button onclick="closeModal('settingsModal')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <!-- Gemini API Key Input -->
+            <div class="space-y-2 bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-200">
+                <div class="flex items-center justify-between">
+                    <label class="block text-[10px] font-bold uppercase text-emerald-900">
+                        <i class="fa-solid fa-key mr-1 text-amber-600"></i> Gemini AI API Key
+                    </label>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[10px] text-emerald-700 underline font-semibold hover:text-emerald-900">
+                        Ambil Key Gratis <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                    </a>
+                </div>
+                <input type="password" id="geminiApiKeyInput" placeholder="Masukkan Google Gemini API Key Anda (AIzaSy...)"
+                       class="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+                <p class="text-[10px] text-slate-500">API Key disimpan secara aman di memori HP/browser Anda (*Local Storage*) dan tidak dipublikasikan ke orang lain.</p>
+            </div>
+
+            <!-- Google Sheets URL Input -->
+            <div class="space-y-2">
+                <label class="block text-[10px] font-bold uppercase text-slate-500">
+                    <i class="fa-solid fa-link mr-1 text-emerald-700"></i> Google Sheets Web App URL
+                </label>
+                <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/.../exec"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+                <p class="text-[10px] text-slate-400">Opsional: Hubungkan transaksi otomatis ke Google Spreadsheet via Apps Script.</p>
+            </div>
+
+            <div class="flex gap-2 justify-end pt-2 border-t border-slate-100">
+                <button onclick="closeModal('settingsModal')" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Batal</button>
+                <button onclick="saveSettings()" class="px-4 py-1.5 bg-emerald-900 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold shadow-sm">Simpan Pengaturan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Atur Anggaran Bulanan -->
+    <div id="budgetModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bankio-card max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-wallet text-emerald-700"></i> Atur Total Income / Anggaran
+                </h3>
+                <button onclick="closeModal('budgetModal')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-[10px] font-bold uppercase text-slate-500">Total Income / Pendapatan Bulanan (Rp)</label>
+                <input type="number" id="budgetInput" placeholder="Contoh: 8500000" min="0"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-700">
+            </div>
+
+            <div class="flex gap-2 justify-end pt-2">
+                <button onclick="closeModal('budgetModal')" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Batal</button>
+                <button onclick="saveBudgetFromModal()" class="px-4 py-1.5 bg-emerald-900 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold shadow-sm">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+    <script>
+        // Dynamic PWA Manifest & Service Worker Registration
+        (function initPWA() {
+            const manifestObj = {
+                name: "Bankio.AI - Financial Insights",
+                short_name: "Bankio.AI",
+                description: "Kelola keuangan pribadi & scan struk otomatis dengan AI",
+                start_url: "./",
+                display: "standalone",
+                background_color: "#f8fafc",
+                theme_color: "#064e3b",
+                icons: [
+                    {
+                        src: "https://cdn-icons-png.flaticon.com/512/10143/10143224.png",
+                        sizes: "192x192",
+                        type: "image/png"
+                    },
+                    {
+                        src: "https://cdn-icons-png.flaticon.com/512/10143/10143224.png",
+                        sizes: "512x512",
+                        type: "image/png"
+                    }
+                ]
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifestObj)], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(manifestBlob);
+            const linkEl = document.createElement('link');
+            linkEl.rel = 'manifest';
+            linkEl.href = manifestURL;
+            document.head.appendChild(linkEl);
+
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => self.clients.claim());
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+                `;
+                const swBlob = new Blob([swCode], {type: 'application/javascript'});
+                const swURL = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swURL).catch(() => {});
+            }
+        })();
+
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showToast('Aplikasi siap di-install ke HP!', 'info');
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast('Aplikasi Bankio.AI berhasil dipasang di HP!', 'success');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS) {
+                    alert("Cara Install di iPhone/iPad:\n1. Ketuk tombol 'Share' (Ikon bagikan di Safari)\n2. Pilih 'Tambahkan ke Layar Utama' (Add to Home Screen).");
+                } else {
+                    alert("Cara Install di HP Android / Laptop:\n1. Ketuk menu titik tiga di pojok kanan atas browser (Chrome/Edge).\n2. Pilih 'Tambahkan ke Layar Utama' atau 'Install Aplikasi'.");
+                }
+            }
+        }
+
+        const SUBHEADINGS = {
+            'scanner': 'Scan struk belanjaan & catat transaksi pengeluaran baru',
+            'dashboard': 'Ringkasan finansial personal dan sisa anggaran Anda',
+            'analytics': 'Visualisasi grafik pengeluaran berdasarkan kategori & minggu',
+            'transactions': 'Daftar riwayat dan filter pencarian seluruh transaksi'
+        };
+
+        function toggleMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            if (navLinks) navLinks.classList.toggle('hidden');
+        }
+
+        function handleSearchInput() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length > 0) {
+                const txPage = document.getElementById('page-transactions');
+                if (txPage && txPage.classList.contains('hidden')) {
+                    switchPage('transactions');
+                }
+            }
+            renderApp();
+        }
+
+        function switchPage(pageName) {
+            const pages = ['scanner', 'dashboard', 'analytics', 'transactions'];
+            
+            pages.forEach(p => {
+                const el = document.getElementById(`page-${p}`);
+                if (el) el.classList.add('hidden');
+                
+                const navEl = document.getElementById(`nav-${p}`);
+                if (navEl) {
+                    navEl.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-medium text-xs transition text-left";
+                }
+
+                const mobNavEl = document.getElementById(`mob-nav-${p}`);
+                if (mobNavEl) {
+                    mobNavEl.className = "flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-700 transition";
+                }
+            });
+
+            const targetPage = document.getElementById(`page-${pageName}`);
+            if (targetPage) targetPage.classList.remove('hidden');
+
+            const activeNav = document.getElementById(`nav-${pageName}`);
+            if (activeNav) {
+                activeNav.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-900 text-white font-medium text-xs transition shadow-sm text-left";
+            }
+
+            const activeMobNav = document.getElementById(`mob-nav-${pageName}`);
+            if (activeMobNav) {
+                activeMobNav.className = "flex flex-col items-center py-1 px-2.5 text-emerald-900 font-bold transition";
+            }
+
+            const subHeadEl = document.getElementById('pageSubHeading');
+            if (subHeadEl && SUBHEADINGS[pageName]) {
+                subHeadEl.innerText = SUBHEADINGS[pageName];
+            }
+
+            const navLinks = document.getElementById('navLinks');
+            if (window.innerWidth < 768 && navLinks && !navLinks.classList.contains('hidden')) {
+                navLinks.classList.add('hidden');
+            }
+
+            if ((pageName === 'dashboard' || pageName === 'analytics') && donutChartInstance && barChartInstance) {
+                setTimeout(() => {
+                    donutChartInstance.resize();
+                    barChartInstance.resize();
+                }, 50);
+            }
+        }
+
+        const CATEGORY_COLORS = {
+            'Makanan': '#064e3b',      // Deep Emerald
+            'Belanja': '#059669',      // Emerald Accent
+            'Transportasi': '#10b981', // Light Emerald
+            'Tagihan': '#f59e0b',      // Amber
+            'Hiburan': '#8b5cf6',      // Purple
+            'Kesehatan': '#ef4444',    // Rose
+            'Lainnya': '#64748b'       // Slate
+        };
+
+        const CATEGORY_ICONS = {
+            'Makanan': 'fa-utensils',
+            'Belanja': 'fa-bag-shopping',
+            'Transportasi': 'fa-car',
+            'Tagihan': 'fa-file-invoice-dollar',
+            'Hiburan': 'fa-film',
+            'Kesehatan': 'fa-heart-pulse',
+            'Lainnya': 'fa-box'
+        };
+
+        // User Profile State Management
+        let currentUser = JSON.parse(localStorage.getItem('ft_user')) || {
+            name: 'Aubrey Sabina',
+            email: 'aubrey@bankio.ai',
+            avatar: null
+        };
+        let tempAvatar = null;
+
+        let transactions = JSON.parse(localStorage.getItem('ft_transactions')) || [
+            { id: '1', name: 'Makan Siang Resto', amount: 45000, category: 'Makanan', date: '2026-07-28', note: 'Ayam Penyet' },
+            { id: '2', name: 'Supermarket Belanja Bulanan', amount: 350000, category: 'Belanja', date: '2026-07-27', note: 'Sembako' },
+            { id: '3', name: 'Isi BBM Motor', amount: 50000, category: 'Transportasi', date: '2026-07-26', note: 'Pertamax' },
+            { id: '4', name: 'Listrik & Wifi', amount: 280000, category: 'Tagihan', date: '2026-07-25', note: 'PLN & IndiHome' }
+        ];
+
+        const storedIncome = localStorage.getItem('ft_income') ?? localStorage.getItem('ft_budget');
+        let totalIncome = storedIncome !== null && !isNaN(Number(storedIncome)) ? Number(storedIncome) : 8500000;
+        let googleSheetsUrl = localStorage.getItem('ft_sheets_url') || '';
+        let geminiApiKey = localStorage.getItem('ft_gemini_api_key') || '';
+        
+        let donutChartInstance = null;
+        let barChartInstance = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('txDate').valueAsDate = new Date();
+            
+            const now = new Date();
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            document.getElementById('headerDateDisplay').innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+
+            if (googleSheetsUrl) document.getElementById('sheetsUrlInput').value = googleSheetsUrl;
+            if (geminiApiKey) document.getElementById('geminiApiKeyInput').value = geminiApiKey;
+
+            checkApiKeyNotice();
+            updateUserUI();
+            initCharts();
+            renderApp();
+            switchPage('scanner');
+        });
+
+        function checkApiKeyNotice() {
+            const banner = document.getElementById('apiKeyNoticeBanner');
+            if (banner) {
+                if (!geminiApiKey) {
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+        }
+
+        function getInitials(name) {
+            if (!name) return 'BK';
+            const parts = name.trim().split(' ').filter(p => p.length > 0);
+            if (parts.length === 0) return 'BK';
+            if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        function updateUserUI() {
+            document.getElementById('headerGreetingName').innerText = currentUser.name || 'Pengguna';
+            document.getElementById('sidebarUserName').innerText = currentUser.name || 'Pengguna';
+            document.getElementById('sidebarUserRole').innerText = currentUser.email || 'user@bankio.ai';
+
+            const initials = getInitials(currentUser.name || 'Aubrey Sabina');
+
+            const renderAvatarBox = (elementId) => {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+                const activeAvatar = tempAvatar !== null ? tempAvatar : currentUser.avatar;
+                if (activeAvatar) {
+                    el.innerHTML = `<img src="${activeAvatar}" class="w-full h-full object-cover rounded-full" alt="Foto Profil">`;
+                } else {
+                    el.innerText = initials;
+                }
+            };
+
+            renderAvatarBox('sidebarAvatar');
+            renderAvatarBox('editModalAvatar');
+            renderAvatarBox('headerAvatar');
+
+            document.getElementById('editUserName').value = currentUser.name || '';
+            document.getElementById('editUserEmail').value = currentUser.email || '';
+
+            localStorage.setItem('ft_user', JSON.stringify(currentUser));
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 3 * 1024 * 1024) {
+                showToast('Ukuran foto maksimal 3MB', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                tempAvatar = e.target.result;
+                updateUserUI();
+                showToast('Pratinjau foto diperbarui! Klik Simpan Perubahan.', 'info');
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function removeProfilePhoto() {
+            tempAvatar = '';
+            updateUserUI();
+            showToast('Foto profil direset ke inisial nama', 'info');
+        }
+
+        function saveProfileChanges(e) {
+            e.preventDefault();
+            const newName = document.getElementById('editUserName').value.trim();
+            const newEmail = document.getElementById('editUserEmail').value.trim();
+
+            if (!newName || !newEmail) {
+                showToast('Nama dan Email tidak boleh kosong', 'error');
+                return;
+            }
+
+            currentUser.name = newName;
+            currentUser.email = newEmail;
+            if (tempAvatar !== null) {
+                currentUser.avatar = tempAvatar;
+                tempAvatar = null;
+            }
+
+            updateUserUI();
+            closeModal('profileModal');
+            showToast('Profil pengguna berhasil diperbarui!', 'success');
+        }
+
+        function openModal(modalId) {
+            const m = document.getElementById(modalId);
+            if (m) m.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const m = document.getElementById(modalId);
+            if (m) m.classList.add('hidden');
+        }
+
+        function openBudgetModal() {
+            document.getElementById('budgetInput').value = totalIncome;
+            openModal('budgetModal');
+        }
+
+        function saveBudgetFromModal() {
+            const val = parseFloat(document.getElementById('budgetInput').value);
+            if (isNaN(val) || val < 0) {
+                showToast('Masukkan jumlah income yang valid', 'error');
+                return;
+            }
+            totalIncome = val;
+            localStorage.setItem('ft_income', totalIncome.toString());
+            localStorage.setItem('ft_budget', totalIncome.toString());
+            closeModal('budgetModal');
+            renderApp();
+            showToast('Total Income / Anggaran berhasil diperbarui!', 'success');
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const btnLogin = document.getElementById('tabBtnLogin');
+            const btnRegister = document.getElementById('tabBtnRegister');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                btnLogin.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-emerald-900 shadow-sm transition";
+                btnRegister.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition";
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                btnRegister.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-emerald-900 shadow-sm transition";
+                btnLogin.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition";
+            }
+        }
+
+        function handleAuthSubmit(e, type) {
+            e.preventDefault();
+            if (type === 'login') {
+                const email = document.getElementById('loginEmail').value.trim();
+                currentUser.email = email;
+                showToast('Berhasil masuk ke akun!', 'success');
+            } else {
+                const name = document.getElementById('regName').value.trim();
+                const email = document.getElementById('regEmail').value.trim();
+                currentUser.name = name;
+                currentUser.email = email;
+                showToast('Akun baru berhasil dibuat!', 'success');
+            }
+            updateUserUI();
+            closeModal('authModal');
+        }
+
+        function handleLogout() {
+            if (confirm("Apakah Anda yakin ingin keluar dari akun?")) {
+                currentUser = { name: 'Tamu', email: 'guest@bankio.ai', avatar: null };
+                updateUserUI();
+                openModal('authModal');
+                showToast('Anda telah keluar akun.', 'info');
+            }
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('txName').value.trim();
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const category = document.getElementById('txCategory').value;
+            const date = document.getElementById('txDate').value;
+            const note = document.getElementById('txNote').value.trim();
+
+            if (!name || isNaN(amount) || amount <= 0 || !category || !date) {
+                showToast('Isi semua bidang form dengan benar', 'error');
+                return;
+            }
+
+            const newTx = {
+                id: Date.now().toString(),
+                name,
+                amount,
+                category,
+                date,
+                note
+            };
+
+            transactions.unshift(newTx);
+            saveTransactions();
+            renderApp();
+
+            // Reset Form Inputs
+            document.getElementById('addTransactionForm').reset();
+            document.getElementById('txDate').valueAsDate = new Date();
+
+            showToast(`Transaksi "${name}" berhasil ditambahkan!`, 'success');
+
+            // Sync to Google Sheets if configured
+            if (googleSheetsUrl) {
+                syncToGoogleSheets(newTx);
+            }
+        }
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            saveTransactions();
+            renderApp();
+            showToast('Transaksi berhasil dihapus', 'info');
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('ft_transactions', JSON.stringify(transactions));
+        }
+
+        async function handleReceiptUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!geminiApiKey) {
+                openModal('settingsModal');
+                showToast('Silakan isi Gemini API Key terlebih dahulu di menu Pengaturan!', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            const statusEl = document.getElementById('receiptScanningStatus');
+            if (statusEl) statusEl.classList.remove('hidden');
+
+            try {
+                const base64Data = await fileToBase64(file);
+                const base64Clean = base64Data.split(',')[1];
+
+                const promptText = `
+                Analisis gambar struk/nota ini dan kembalikan HANYA JSON bertipe object dengan properti berikut:
+                - name: nama merchant atau toko
+                - amount: total pembayaran (angka murni tanpa titik/koma)
+                - category: salah satu dari ["Makanan", "Belanja", "Transportasi", "Tagihan", "Hiburan", "Kesehatan", "Lainnya"]
+                - date: tanggal transaksi format YYYY-MM-DD
+                - note: ringkasan barang belanjaan singkat
+                `;
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: promptText },
+                            {
+                                inlineData: {
+                                    mimeType: file.type || "image/jpeg",
+                                    data: base64Clean
+                                }
+                            }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData?.error?.message || "Gagal membaca gambar dari Gemini API");
+                }
+
+                const result = await response.json();
+                const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (jsonText) {
+                    const parsed = JSON.parse(jsonText);
+                    if (parsed.name) document.getElementById('txName').value = parsed.name;
+                    if (parsed.amount) document.getElementById('txAmount').value = parsed.amount;
+                    if (parsed.category) document.getElementById('txCategory').value = parsed.category;
+                    if (parsed.date) document.getElementById('txDate').value = parsed.date;
+                    if (parsed.note) document.getElementById('txNote').value = parsed.note;
+
+                    showToast('Struk berhasil dibaca otomatis oleh Gemini AI!', 'success');
+                } else {
+                    throw new Error("Respon AI tidak dapat diproses");
+                }
+            } catch (err) {
+                console.error("AI Receipt Scanner Error:", err);
+                showToast(`Gagal memproses struk: ${err.message || 'Periksa API Key Anda'}`, 'error');
+            } finally {
+                if (statusEl) statusEl.classList.add('hidden');
+                event.target.value = '';
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function fetchAiTips() {
+            if (!geminiApiKey) {
+                openModal('settingsModal');
+                showToast('Masukkan Gemini API Key terlebih dahulu!', 'error');
+                return;
+            }
+
+            const advisorBox = document.getElementById('aiAdvisorBox');
+            if (advisorBox) advisorBox.innerText = "Gemini AI sedang menganalisis pola pengeluaran Anda...";
+
+            try {
+                const totalExp = transactions.reduce((sum, t) => sum + Number(t.amount), 0);
+                const categories = {};
+                transactions.forEach(t => {
+                    categories[t.category] = (categories[t.category] || 0) + Number(t.amount);
+                });
+
+                const systemPrompt = "Anda adalah konsultan keuangan pribadi tingkat dunia. Berikan 2-3 kalimat ringkas dan praktis dalam Bahasa Indonesia.";
+                const userQuery = `Total Pendapatan: Rp ${totalIncome}. Total Pengeluaran: Rp ${totalExp}. Breakdown Kategori: ${JSON.stringify(categories)}. Berikan saran singkat tentang penghematan dan kondisi keuangan pengguna saat ini.`;
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData?.error?.message || "Gagal memanggil API AI");
+                }
+
+                const result = await response.json();
+                const tipText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (tipText) {
+                    if (advisorBox) advisorBox.innerText = `"${tipText.trim()}"`;
+                    showToast('Saran keuangan AI diperbarui!', 'success');
+                } else {
+                    throw new Error("Respon kosong");
+                }
+            } catch (err) {
+                console.error("AI Advisor Error:", err);
+                if (advisorBox) advisorBox.innerText = "Gagal memuat analisis AI. Pastikan API Key valid.";
+                showToast(`Gagal: ${err.message}`, 'error');
+            }
+        }
+
+        function saveSettings() {
+            const apiKey = document.getElementById('geminiApiKeyInput').value.trim();
+            const sheetsUrl = document.getElementById('sheetsUrlInput').value.trim();
+
+            geminiApiKey = apiKey;
+            googleSheetsUrl = sheetsUrl;
+
+            localStorage.setItem('ft_gemini_api_key', apiKey);
+            localStorage.setItem('ft_sheets_url', sheetsUrl);
+
+            checkApiKeyNotice();
+            closeModal('settingsModal');
+            showToast('Pengaturan berhasil disimpan!', 'success');
+        }
+
+        async function syncToGoogleSheets(txData) {
+            if (!googleSheetsUrl) return;
+            try {
+                await fetch(googleSheetsUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(txData)
+                });
+                showToast('Data disinkronkan ke Google Sheets', 'success');
+            } catch (e) {
+                console.error("Sync Sheets error:", e);
+            }
+        }
+
+        function exportToCSV() {
+            if (transactions.length === 0) {
+                showToast('Belum ada transaksi untuk diexport', 'error');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,ID,Tanggal,Nama,Kategori,Jumlah,Catatan\n";
+            transactions.forEach(t => {
+                const row = `"${t.id}","${t.date}","${t.name.replace(/"/g, '""')}","${t.category}","${t.amount}","${(t.note || '').replace(/"/g, '""')}"`;
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Bankio_Transactions_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Laporan CSV berhasil diunduh!', 'success');
+        }
+
+        function initCharts() {
+            const ctxDonut = document.getElementById('expenseDonutChart')?.getContext('2d');
+            if (ctxDonut) {
+                donutChartInstance = new Chart(ctxDonut, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            data: [],
+                            backgroundColor: [],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+
+            const ctxBar = document.getElementById('monthlyBarChart')?.getContext('2d');
+            if (ctxBar) {
+                barChartInstance = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'],
+                        datasets: [{
+                            label: 'Pengeluaran (Rp)',
+                            data: [0, 0, 0, 0],
+                            backgroundColor: '#059669',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'Rp ' + (value / 1000) + 'k';
+                                    },
+                                    font: { size: 10 }
+                                },
+                                grid: { color: '#f1f5f9' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 10 } }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function formatRupiah(num) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+        }
+
+        function renderApp() {
+            const searchQuery = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+            const categoryFilter = document.getElementById('categoryFilter')?.value || 'ALL';
+
+            const filteredTx = transactions.filter(t => {
+                const matchesSearch = t.name.toLowerCase().includes(searchQuery) || 
+                                      t.category.toLowerCase().includes(searchQuery) ||
+                                      t.date.includes(searchQuery) ||
+                                      (t.note && t.note.toLowerCase().includes(searchQuery));
+                const matchesCat = categoryFilter === 'ALL' || t.category === categoryFilter;
+                return matchesSearch && matchesCat;
+            });
+
+            const totalExp = transactions.reduce((sum, t) => sum + Number(t.amount), 0);
+            const remainingBudget = totalIncome - totalExp;
+            const percentUsed = totalIncome > 0 ? Math.min(Math.round((totalExp / totalIncome) * 100), 100) : 0;
+
+            // Update Mini Summary Card in Page 1
+            document.getElementById('scannerTotalIncome').innerText = formatRupiah(totalIncome);
+            document.getElementById('scannerTotalExpenses').innerText = formatRupiah(totalExp);
+            document.getElementById('scannerRemainingBudget').innerText = formatRupiah(remainingBudget);
+
+            // Update Top Key Stat Cards in Page 2
+            document.getElementById('cardTotalIncome').innerText = formatRupiah(totalIncome);
+            document.getElementById('cardTotalAmount').innerText = formatRupiah(totalExp);
+            document.getElementById('cardItemCount').innerText = transactions.length;
+
+            const remainingText = document.getElementById('bigBudgetRemainingText');
+            if (remainingText) remainingText.innerText = formatRupiah(remainingBudget);
+
+            const progressBar = document.getElementById('budgetProgressBar');
+            if (progressBar) progressBar.style.width = `${percentUsed}%`;
+
+            const percentText = document.getElementById('budgetPercentText');
+            if (percentText) percentText.innerText = `${percentUsed}% terpakai dari total anggaran`;
+
+            const savingsContainer = document.getElementById('savingsCardContainer');
+            if (savingsContainer) {
+                if (remainingBudget < 0) {
+                    savingsContainer.className = "bg-rose-900 text-white rounded-2xl p-5 shadow-lg shadow-rose-900/15 flex flex-col justify-between relative overflow-hidden transition-colors duration-300";
+                    document.getElementById('savingsCardTitle').innerText = "Over Budget Alert!";
+                } else {
+                    savingsContainer.className = "bg-emerald-900 text-white rounded-2xl p-5 shadow-lg shadow-emerald-900/15 flex flex-col justify-between relative overflow-hidden transition-colors duration-300";
+                    document.getElementById('savingsCardTitle').innerText = "Available Savings";
+                }
+            }
+
+            // Update Analytics Pill Badges
+            document.getElementById('analyticsSummaryIncome').innerText = formatRupiah(totalIncome);
+            document.getElementById('analyticsSummaryExpenses').innerText = formatRupiah(totalExp);
+            document.getElementById('analyticsSummarySavings').innerText = formatRupiah(remainingBudget);
+
+            // Render Table Body
+            const tbody = document.getElementById('transactionTableBody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                if (filteredTx.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="p-6 text-center text-slate-400">
+                                <i class="fa-solid fa-folder-open text-2xl mb-1 block"></i>
+                                Tidak ada transaksi yang ditemukan.
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    filteredTx.forEach(t => {
+                        const iconClass = CATEGORY_ICONS[t.category] || 'fa-box';
+                        const catColor = CATEGORY_COLORS[t.category] || '#64748b';
+
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                        tr.innerHTML = `
+                            <td class="p-3 text-slate-500 font-medium">${t.date}</td>
+                            <td class="p-3">
+                                <div class="font-bold text-slate-800">${escapeHtml(t.name)}</div>
+                                ${t.note ? `<div class="text-[10px] text-slate-400">${escapeHtml(t.note)}</div>` : ''}
+                            </td>
+                            <td class="p-3">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold text-white" style="background-color: ${catColor}">
+                                    <i class="fa-solid ${iconClass}"></i> ${t.category}
+                                </span>
+                            </td>
+                            <td class="p-3 text-right font-extrabold text-slate-900">${formatRupiah(t.amount)}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="deleteTransaction('${t.id}')" class="text-slate-400 hover:text-rose-600 p-1 transition" title="Hapus">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            }
+
+            document.getElementById('filteredCount').innerText = filteredTx.length;
+
+            updateChartsData();
+        }
+
+        function updateChartsData() {
+            if (!donutChartInstance || !barChartInstance) return;
+
+            const categoryTotals = {};
+            transactions.forEach(t => {
+                categoryTotals[t.category] = (categoryTotals[t.category] || 0) + Number(t.amount);
+            });
+
+            const labels = Object.keys(categoryTotals);
+            const data = Object.values(categoryTotals);
+            const colors = labels.map(l => CATEGORY_COLORS[l] || '#64748b');
+
+            donutChartInstance.data.labels = labels;
+            donutChartInstance.data.datasets[0].data = data;
+            donutChartInstance.data.datasets[0].backgroundColor = colors;
+            donutChartInstance.update();
+
+            document.getElementById('categoryCountBadge').innerText = `${labels.length} Jenis`;
+
+            // Render Dynamic Donut Legend List
+            const legendContainer = document.getElementById('categoryBreakdownList');
+            if (legendContainer) {
+                legendContainer.innerHTML = '';
+                const totalExp = data.reduce((a, b) => a + b, 0);
+
+                labels.forEach((cat, idx) => {
+                    const amt = data[idx];
+                    const percent = totalExp > 0 ? Math.round((amt / totalExp) * 100) : 0;
+                    const color = colors[idx];
+
+                    const item = document.createElement('div');
+                    item.className = "flex items-center justify-between text-xs py-1 border-b border-slate-50";
+                    item.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${color}"></span>
+                            <span class="font-medium text-slate-700">${cat}</span>
+                        </div>
+                        <div class="font-bold text-slate-800">${formatRupiah(amt)} <span class="text-[10px] text-slate-400 font-normal">(${percent}%)</span></div>
+                    `;
+                    legendContainer.appendChild(item);
+                });
+            }
+
+            // Estimate weekly distribution for Bar Chart
+            const weeklySums = [0, 0, 0, 0];
+            transactions.forEach(t => {
+                const day = new Date(t.date).getDate();
+                if (day <= 7) weeklySums[0] += Number(t.amount);
+                else if (day <= 14) weeklySums[1] += Number(t.amount);
+                else if (day <= 21) weeklySums[2] += Number(t.amount);
+                else weeklySums[3] += Number(t.amount);
+            });
+
+            barChartInstance.data.datasets[0].data = weeklySums;
+            barChartInstance.update();
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            let bgClass = "bg-slate-800 text-white";
+            let icon = "fa-info-circle";
+
+            if (type === 'success') {
+                bgClass = "bg-emerald-900 text-white border border-emerald-700";
+                icon = "fa-circle-check text-emerald-400";
+            } else if (type === 'error') {
+                bgClass = "bg-rose-900 text-white border border-rose-700";
+                icon = "fa-triangle-exclamation text-rose-300";
+            }
+
+            toast.className = `${bgClass} pointer-events-auto px-4 py-2.5 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2.5 transition-all duration-300 transform translate-y-2 opacity-0`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-sm"></i> <span>${escapeHtml(message)}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function escapeHtml(str) {
+            return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+    </script>
+</body>
+</html>
